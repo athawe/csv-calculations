@@ -9,16 +9,21 @@
   },
   "dependencies": {
     "core-js": "^2.6.5",
+    "csvtojson": "^2.0.10",
+    "currency.js": "^1.2.2",
     "vue": "^2.6.10",
-    "vuetify": "^2.0.0"
+    "vue-json-csv": "^1.2.8",
+    "vuetify": "^2.0.11"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.11.0",
     "@vue/cli-plugin-eslint": "^3.11.0",
     "@vue/cli-service": "^3.11.0",
     "babel-eslint": "^10.0.1",
-    "eslint": "^5.16.0",
-    "eslint-plugin-vue": "^5.0.0",
+    "eslint": "^6.3.0",
+    "eslint-config-google": "^0.13.0",
+    "eslint-config-vuetify": "^0.4.0",
+    "eslint-plugin-vue": "^5.2.3",
     "sass": "^1.17.4",
     "sass-loader": "^7.1.0",
     "vue-cli-plugin-vuetify": "^0.6.3",
@@ -34,7 +39,6 @@
       "plugin:vue/essential",
       "eslint:recommended"
     ],
-    "rules": {},
     "parserOptions": {
       "parser": "babel-eslint"
     }
