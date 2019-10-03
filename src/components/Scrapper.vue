@@ -1,13 +1,22 @@
 <template>
-  <v-container fluid>
+  <v-container
+    id="landing-page"
+    fluid
+  >
     <v-row>
       <v-col
         cols="12"
         sm="8"
         offset-sm="2"
       >
-        <div class="body-2">
-          <span class="green--text subtitle-1">Profitz</span> makes generating your company data from CSV records a quick and easy process.
+        <div class="body-2 text-center">
+          <v-chip
+            color="primary white--text"
+            label
+          >
+            <span class="green--text subtitle-1 mr-1">Profitz</span>
+            makes generating your company data from CSV records a quick and easy process.
+          </v-chip>
         </div>
       </v-col>
     </v-row>
@@ -171,5 +180,13 @@
 </script>
 
 <style scoped>
-
+  #landing-page {
+    background-image: linear-gradient( to bottom right, rgba(245, 246, 252, 0.52), rgba(29, 19, 117, 0.76)),
+    url('../assets/stock-image.jpeg');
+    height: 90vh;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+  }
 </style>
