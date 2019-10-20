@@ -155,6 +155,25 @@
         </v-card>
       </v-dialog>
     </v-row>
+    <v-row v-if="output !== null">
+      <v-col
+        cols="12"
+        sm="10"
+        offset-sm="1"
+      >
+        <v-card>
+          <v-card-title>Key Details</v-card-title>
+          <v-card-text>
+            After removing product costs, your total profit is ${{ salesTotal }}.
+            <v-data-table
+              :headers="headers"
+              :items="top10Items"
+              class="elevation-2"
+            />
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -179,12 +198,28 @@
       },
       errorDialog: false,
       errors: [],
+      salesTotal: 0,
+      headers: [
+        {
+          text: 'Name',
+          align: 'left',
+          sortable: false,
+          value: 'name',
+        },
+        {
+          text: 'Profit',
+          align: 'left',
+          value: 'formattedProfit',
+        },
+      ],
+      top10Items: [],
     }),
     methods: {
       async runConversion () {
         const inventory = await csv().fromString(this.inventoryCSV)
         const sales = await csv().fromString(this.salesCSV)
         this.output = sales.slice(0, (sales.length - 2)).map(entry => {
+          const itemName = entry['Description'] ? entry['Description'] : entry['Name']
           const saleItemCode = entry['Item Code'] ? entry['Item Code'] : entry['Item']
           const quantitySold = parseInt(entry['Qty'] ? entry['Qty'] : entry['Quantity'], 10)
           const revenue = currency(entry['Value']).value
@@ -194,22 +229,54 @@
           })
           if (index !== -1) {
             const costPerUnit = currency(inventory[index]['Cost Value']).value
+            const profit = revenue - (quantitySold * costPerUnit)
+            this.salesTotal += profit
             const price = currency(
-              (revenue - (quantitySold * costPerUnit)), {
+              profit, {
                 formatWithSymbol: true,
                 separator: ',',
               }
             ).format()
+            const simpleItem = {
+              name: itemName,
+              profit: profit,
+              formattedProfit: currency(
+                profit, {
+                  formatWithSymbol: true,
+                  separator: ',',
+                }).format(),
+            }
+            if (this.top10Items.length === 0) {
+              this.top10Items.push(simpleItem)
+            } else {
+              let addedFlag = this.top10Items.some((bigItem, index) => {
+                if (profit > bigItem.profit) {
+                  this.top10Items.splice(index, 0, simpleItem)
+                  return true
+                }
+                return false
+              })
+              if (this.top10Items.length < 10 && addedFlag === false) {
+                this.top10Items.push(simpleItem)
+              } else if (this.top10Items.length > 10) {
+                this.top10Items.pop()
+              }
+            }
             return {
-              item: `"${entry['Item'] ? entry['Item'] : entry['Item Code']}"`,
-              description: `"${entry['Description'] ? entry['Description'] : entry['Name']}"`,
+              item: `"${saleItemCode}"`,
+              description: `"${itemName}"`,
               profit: `"${price}"`,
             }
           } else {
-            this.errors.push(`"${entry['Description'] ? entry['Description'] : entry['Name']}"`)
+            this.errors.push(`"${itemName}"`)
             return {}
           }
         }).filter(entry => Object.keys(entry).length > 0)
+          .push({
+            item: ``,
+            description: `Total Profit`,
+            profit: `"${this.salesTotal}"`,
+          })
         if (this.errors.length > 0) {
           this.errorDialog = true
         }
