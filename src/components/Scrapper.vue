@@ -48,7 +48,8 @@
               <li>Identify products codes with 'Item' or 'Item Code'</li>
               <li>Product names with 'Name' or 'Description'</li>
               <li>Sold products with 'Quantity' or 'Qty'</li>
-              <li>Profit margin per product with 'Cost Value' or 'Profit'</li>
+              <li>Profit margin per product with 'Cost Value'</li>
+              <li>Sale price per product with 'Value'</li>
             </ul>
           </v-card-text>
         </v-card>
@@ -185,15 +186,16 @@
         const sales = await csv().fromString(this.salesCSV)
         this.output = sales.slice(0, (sales.length - 2)).map(entry => {
           const saleItemCode = entry['Item Code'] ? entry['Item Code'] : entry['Item']
-          const quantity = parseInt(entry['Qty'] ? entry['Qty'] : entry['Quantity'], 10)
+          const quantitySold = parseInt(entry['Qty'] ? entry['Qty'] : entry['Quantity'], 10)
+          const revenue = currency(entry['Value']).value
           let index = inventory.findIndex(inventoryEntry => {
             const inventoryItemCode = inventoryEntry['Item Code'] ? inventoryEntry['Item Code'] : inventoryEntry['Item']
             return saleItemCode === inventoryItemCode
           })
           if (index !== -1) {
-            const costPerUnit = currency(inventory[index]['Cost Value'] ? inventory[index]['Cost Value'] : inventory[index]['Profit']).value
+            const costPerUnit = currency(inventory[index]['Cost Value']).value
             const price = currency(
-              quantity * costPerUnit, {
+              (revenue - (quantitySold * costPerUnit)), {
                 formatWithSymbol: true,
                 separator: ',',
               }
